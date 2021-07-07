@@ -7,6 +7,7 @@ import com.annaaj.store.config.MessageStrings;
 import com.annaaj.store.model.AuthenticationToken;
 import com.annaaj.store.model.User;
 import com.annaaj.store.utils.Helper;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,5 +42,10 @@ public class AuthenticationService {
         if (!Helper.notNull(getUser(token))) {
             throw new AuthenticationFailException(MessageStrings.AUTH_TOEKN_NOT_VALID);
         }
+    }
+
+    public void removeAuthenticationToken(String token) {
+        AuthenticationToken authenticationToken = repository.findTokenByToken(token);
+        repository.delete(authenticationToken);
     }
 }

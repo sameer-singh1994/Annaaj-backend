@@ -180,6 +180,11 @@ public class UserService {
         return new SignInResponseDto ("success", token.getToken());
     }
 
+    public void signOut(String token) {
+        User user = authenticationService.getUser(token);
+        authenticationService.removeAuthenticationToken(token);
+        authenticationService.saveConfirmationToken(new AuthenticationToken(user));
+    }
 
     String hashPassword(String password) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");

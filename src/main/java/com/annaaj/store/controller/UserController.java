@@ -1,6 +1,7 @@
 package com.annaaj.store.controller;
 
 
+import com.annaaj.store.common.ApiResponse;
 import com.annaaj.store.dto.ResponseDto;
 import com.annaaj.store.exceptions.AuthenticationFailException;
 import com.annaaj.store.exceptions.CustomException;
@@ -16,6 +17,8 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -73,10 +76,17 @@ public class UserController {
 
     //TODO token should be updated
     @PostMapping("/signIn")
-    public SignInResponseDto Signup(@RequestBody SignInDto signInDto) throws CustomException {
+    public SignInResponseDto signIn(@RequestBody SignInDto signInDto) throws CustomException {
         return userService.signIn(signInDto);
     }
 
+    @PostMapping("/signOut")
+    public ResponseEntity<ApiResponse> signOut(@RequestParam("token") String token) throws CustomException {
+        authenticationService.authenticate(token);
+        userService.signOut(token);
+        return new ResponseEntity<>(
+            new ApiResponse(true, "User has been successfully logged out"), HttpStatus.OK);
+    }
 
     private String getSiteURL(HttpServletRequest request) {
         String siteURL = request.getRequestURL().toString();

@@ -1,5 +1,6 @@
 package com.annaaj.store.service;
 
+import com.annaaj.store.config.application.CommunityLeaderConfig;
 import com.annaaj.store.exceptions.CartItemNotExistException;
 import com.annaaj.store.model.Cart;
 import com.annaaj.store.model.Product;
@@ -23,6 +24,9 @@ public class CartService {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private CommunityLeaderConfig communityLeaderConfig;
+
     public CartService(){}
 
     public CartService(CartRepository cartRepository) {
@@ -31,6 +35,7 @@ public class CartService {
 
     public void addToCart(AddToCartDto addToCartDto, Product product, User user){
         Cart cart = new Cart(product, addToCartDto.getQuantity(), user);
+        cart = setCommunityLeaderIncentive(cart, product);
         cartRepository.save(cart);
     }
 
@@ -43,10 +48,12 @@ public class CartService {
             cartItems.add(cartItemDto);
         }
         double totalCost = 0;
+        double totalIncentive = 0.0;
         for (CartItemDto cartItemDto :cartItems){
             totalCost += (cartItemDto.getProduct().getPrice()* cartItemDto.getQuantity());
+            totalIncentive += cartItemDto.getIncentive();
         }
-        CartDto cartDto = new CartDto(cartItems,totalCost);
+        CartDto cartDto = new CartDto(cartItems,totalCost, totalIncentive);
         return cartDto;
     }
 
@@ -61,6 +68,7 @@ public class CartService {
         Cart cart = cartRepository.getOne(cartDto.getId());
         cart.setQuantity(cartDto.getQuantity());
         cart.setCreatedDate(new Date());
+        cart = setCommunityLeaderIncentive(cart, product);
         cartRepository.save(cart);
     }
 
@@ -69,6 +77,13 @@ public class CartService {
             throw new CartItemNotExistException("Cart id is invalid : " + id);
         cartRepository.deleteById(id);
 
+    }
+
+    public Cart setCommunityLeaderIncentive(Cart cart, Product product) {
+        double productPrice = product.getPrice();
+        double incentive = productPrice * cart.getQuantity() * ( communityLeaderConfig.getIncentivePercentage() / 100.0 );
+        cart.setIncentive(incentive);
+        return cart;
     }
 
     public void deleteCartItems(int userId) {

@@ -4,6 +4,7 @@ package com.annaaj.store.service;
 import com.annaaj.store.dto.ResponseDto;
 import com.annaaj.store.exceptions.AuthenticationFailException;
 import com.annaaj.store.exceptions.CustomException;
+import com.annaaj.store.model.Order;
 import com.annaaj.store.repository.UserRepository;
 import com.annaaj.store.config.MessageStrings;
 import com.annaaj.store.dto.user.SignInDto;
@@ -225,6 +226,11 @@ public class UserService {
             throw  new AuthenticationFailException("user not present");
         }
         user.setAddress(address);
+        userRepository.save(user);
+    }
+
+    public void updateCommunityLeaderIncentive(User user, Order order) {
+        user.setTotalEarnings(user.getTotalEarnings() + order.getIncentive());
         userRepository.save(user);
     }
 

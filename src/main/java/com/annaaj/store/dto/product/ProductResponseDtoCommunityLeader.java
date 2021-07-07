@@ -1,40 +1,28 @@
 package com.annaaj.store.dto.product;
 
 import com.annaaj.store.model.Product;
-
 import javax.validation.constraints.NotNull;
 
-public class ProductDto {
+public class ProductResponseDtoCommunityLeader {
 
     private Integer id;
     private @NotNull String name;
     private @NotNull String imageURL;
     private @NotNull double price;
-    private @NotNull double costPrice;
+    private double projectedIncentive;
     private @NotNull String description;
     private @NotNull Integer categoryId;
 
-    public ProductDto(Product product) {
+    public ProductResponseDtoCommunityLeader(Product product) {
         this.setId(product.getId());
         this.setName(product.getName());
         this.setImageURL(product.getImageURL());
         this.setDescription(product.getDescription());
         this.setPrice(product.getPrice());
-        this.setCostPrice(product.getCostPrice());
         this.setCategoryId(product.getCategory().getId());
     }
 
-    public ProductDto(@NotNull String name, @NotNull String imageURL, @NotNull double price, @NotNull double costPrice,
-                      @NotNull String description, @NotNull Integer categoryId) {
-        this.name = name;
-        this.imageURL = imageURL;
-        this.price = price;
-        this.costPrice = costPrice;
-        this.description = description;
-        this.categoryId = categoryId;
-    }
-
-    public ProductDto() {
+    public ProductResponseDtoCommunityLeader() {
     }
 
     public Integer getId() {
@@ -69,12 +57,12 @@ public class ProductDto {
         this.price = price;
     }
 
-    public double getCostPrice() {
-        return costPrice;
+    public double getProjectedIncentive() {
+        return projectedIncentive;
     }
 
-    public void setCostPrice(double costPrice) {
-        this.costPrice = costPrice;
+    public void setProjectedIncentive(double projectedIncentive) {
+        this.projectedIncentive = projectedIncentive;
     }
 
     public String getDescription() {

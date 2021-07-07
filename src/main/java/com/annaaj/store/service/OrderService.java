@@ -1,5 +1,6 @@
 package com.annaaj.store.service;
 
+import com.annaaj.store.enums.OrderStatus;
 import com.annaaj.store.exceptions.OrderNotFoundException;
 import com.annaaj.store.model.Order;
 import com.annaaj.store.model.OrderItem;
@@ -51,6 +52,12 @@ public class OrderService {
         return order;
     }
 
+    public void updateOrderStatus(int orderId, OrderStatus orderStatus) {
+        Order order = getOrder(orderId);
+        order.setOrderStatus(orderStatus);
+        orderRepository.save(order);
+    }
+
     public List<Order> listOrders(User user) {
         List<Order> orderList = orderRepository.findAllByUserOrderByCreatedDateDesc(user);
         return orderList;
@@ -71,6 +78,7 @@ public class OrderService {
         PlaceOrderDto placeOrderDto = new PlaceOrderDto();
         placeOrderDto.setUser(user);
         placeOrderDto.setTotalPrice(cartDto.getTotalCost());
+        placeOrderDto.setTotalIncentive(cartDto.getTotalIncentive());
 
         Order newOrder = saveOrder(placeOrderDto, user, sessionId);
         List<CartItemDto> cartItemDtoList = cartDto.getcartItems();
@@ -79,10 +87,12 @@ public class OrderService {
                     newOrder,
                     cartItemDto.getProduct(),
                     cartItemDto.getQuantity(),
-                    cartItemDto.getProduct().getPrice());
+                    cartItemDto.getProduct().getPrice(),
+                    cartItemDto.getIncentive());
             orderItemsService.addOrderedProducts(orderItem);
         }
         cartService.deleteUserCartItems(user);
+        updateOrderStatus(newOrder.getId(), OrderStatus.PLACED);
     }
 
     SessionCreateParams.LineItem.PriceData createPriceData(CheckoutItemDto checkoutItemDto) {

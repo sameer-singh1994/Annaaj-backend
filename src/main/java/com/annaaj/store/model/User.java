@@ -41,10 +41,10 @@ public class User {
 
     private boolean enabled;
 
-    private Long communityLeaderId;
+    private Integer communityLeaderId;
 
     @Column(name = "total_earnings")
-    private Long totalEarnings;
+    private double totalEarnings;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user",
@@ -123,19 +123,19 @@ public class User {
         this.enabled = enabled;
     }
 
-    public Long getCommunityLeaderId() {
+    public Integer getCommunityLeaderId() {
         return communityLeaderId;
     }
 
-    public void setCommunityLeaderId(Long communityLeaderId) {
+    public void setCommunityLeaderId(Integer communityLeaderId) {
         this.communityLeaderId = communityLeaderId;
     }
 
-    public Long getTotalEarnings() {
+    public double getTotalEarnings() {
         return totalEarnings;
     }
 
-    public void setTotalEarnings(Long totalEarnings) {
+    public void setTotalEarnings(double totalEarnings) {
         this.totalEarnings = totalEarnings;
     }
 

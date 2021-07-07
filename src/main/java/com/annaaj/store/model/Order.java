@@ -2,6 +2,7 @@ package com.annaaj.store.model;
 
 
 import com.annaaj.store.dto.order.PlaceOrderDto;
+import com.annaaj.store.enums.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -23,8 +24,15 @@ public class Order {
     @Column(name = "total_price")
     private Double totalPrice;
 
+    @Column(name = "incentive")
+    private Double incentive;
+
     @Column(name = "session_id")
     private String sessionId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status")
+    private OrderStatus orderStatus;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
@@ -41,6 +49,7 @@ public class Order {
         this.user = user;
         this.createdDate = new Date();
         this.totalPrice = orderDto.getTotalPrice();
+        this.incentive = orderDto.getTotalIncentive();
         this.sessionId = sessionId;
     }
 
@@ -77,6 +86,14 @@ public class Order {
         this.totalPrice = totalPrice;
     }
 
+    public Double getIncentive() {
+        return incentive;
+    }
+
+    public void setIncentive(Double incentive) {
+        this.incentive = incentive;
+    }
+
     public String getSessionId() {
         return sessionId;
     }
@@ -91,5 +108,13 @@ public class Order {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }

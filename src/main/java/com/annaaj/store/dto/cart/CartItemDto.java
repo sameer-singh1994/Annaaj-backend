@@ -9,6 +9,7 @@ public class CartItemDto {
     private Integer id;
     private @NotNull Integer userId;
     private @NotNull Integer quantity;
+    private @NotNull double incentive;
     private @NotNull Product product;
 
     public CartItemDto() {
@@ -18,6 +19,7 @@ public class CartItemDto {
         this.setId(cart.getId());
         this.setUserId(cart.getUser().getId());
         this.setQuantity(cart.getQuantity());
+        this.setIncentive(cart.getIncentive());
         this.setProduct(cart.getProduct());
     }
 
@@ -27,6 +29,7 @@ public class CartItemDto {
                 "id=" + id +
                 ", userId=" + userId +
                 ", quantity=" + quantity +
+                ", incentive=" + incentive +
                 ", productName=" + product.getName() +
                 '}';
     }
@@ -62,4 +65,11 @@ public class CartItemDto {
         this.product = product;
     }
 
+    public double getIncentive() {
+        return incentive;
+    }
+
+    public void setIncentive(double incentive) {
+        this.incentive = incentive;
+    }
 }

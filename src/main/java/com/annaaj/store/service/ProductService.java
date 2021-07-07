@@ -1,5 +1,8 @@
 package com.annaaj.store.service;
 
+import com.annaaj.store.config.application.CommunityLeaderConfig;
+import com.annaaj.store.dto.product.ProductResponseDtoCommunityLeader;
+import com.annaaj.store.dto.product.ProductResponseDtoUser;
 import com.annaaj.store.exceptions.ProductNotExistException;
 import com.annaaj.store.repository.ProductRepository;
 import com.annaaj.store.dto.product.ProductDto;
@@ -17,7 +20,10 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public List<ProductDto> listProducts() {
+    @Autowired
+    private CommunityLeaderConfig communityLeaderConfig;
+
+    public List<ProductDto> listProductsAdmin() {
         List<Product> products = productRepository.findAll();
         List<ProductDto> productDtos = new ArrayList<>();
         for(Product product : products) {
@@ -25,6 +31,37 @@ public class ProductService {
             productDtos.add(productDto);
         }
         return productDtos;
+    }
+
+    public List<ProductResponseDtoUser> listProductsUser() {
+        List<Product> products = productRepository.findAll();
+        List<ProductResponseDtoUser> productDtos = new ArrayList<>();
+        for(Product product : products) {
+            ProductResponseDtoUser productDto = getUserDtoFromProduct(product);
+            productDtos.add(productDto);
+        }
+        return productDtos;
+    }
+
+    public List<ProductResponseDtoCommunityLeader> listProductsCommunityLeader() {
+        List<Product> products = productRepository.findAll();
+        List<ProductResponseDtoCommunityLeader> productDtos = new ArrayList<>();
+        for(Product product : products) {
+            ProductResponseDtoCommunityLeader productDto = getCommunityLeaderDtoFromProduct(product);
+            productDtos.add(productDto);
+        }
+        return productDtos;
+    }
+
+    public ProductResponseDtoUser getUserDtoFromProduct(Product product) {
+        return new ProductResponseDtoUser(product);
+    }
+
+    public ProductResponseDtoCommunityLeader getCommunityLeaderDtoFromProduct(Product product) {
+        ProductResponseDtoCommunityLeader productResponseDtoCommunityLeader =
+            new ProductResponseDtoCommunityLeader(product);
+        productResponseDtoCommunityLeader.setProjectedIncentive(getIncentive(product));
+        return productResponseDtoCommunityLeader;
     }
 
     public static ProductDto getDtoFromProduct(Product product) {
@@ -48,6 +85,11 @@ public class ProductService {
         productRepository.save(product);
     }
 
+
+    private double getIncentive(Product product) {
+        return (product.getPrice() - product.getCostPrice()) * (communityLeaderConfig
+            .getIncentivePercentage() / 100.0);
+    }
 
     public Product getProductById(Integer productId) throws ProductNotExistException {
         Optional<Product> optionalProduct = productRepository.findById(productId);

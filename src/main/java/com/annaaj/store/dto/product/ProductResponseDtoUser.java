@@ -1,40 +1,27 @@
 package com.annaaj.store.dto.product;
 
 import com.annaaj.store.model.Product;
-
 import javax.validation.constraints.NotNull;
 
-public class ProductDto {
+public class ProductResponseDtoUser {
 
     private Integer id;
     private @NotNull String name;
     private @NotNull String imageURL;
     private @NotNull double price;
-    private @NotNull double costPrice;
     private @NotNull String description;
     private @NotNull Integer categoryId;
 
-    public ProductDto(Product product) {
+    public ProductResponseDtoUser(Product product) {
         this.setId(product.getId());
         this.setName(product.getName());
         this.setImageURL(product.getImageURL());
         this.setDescription(product.getDescription());
         this.setPrice(product.getPrice());
-        this.setCostPrice(product.getCostPrice());
         this.setCategoryId(product.getCategory().getId());
     }
 
-    public ProductDto(@NotNull String name, @NotNull String imageURL, @NotNull double price, @NotNull double costPrice,
-                      @NotNull String description, @NotNull Integer categoryId) {
-        this.name = name;
-        this.imageURL = imageURL;
-        this.price = price;
-        this.costPrice = costPrice;
-        this.description = description;
-        this.categoryId = categoryId;
-    }
-
-    public ProductDto() {
+    public ProductResponseDtoUser() {
     }
 
     public Integer getId() {
@@ -67,14 +54,6 @@ public class ProductDto {
 
     public void setPrice(double price) {
         this.price = price;
-    }
-
-    public double getCostPrice() {
-        return costPrice;
-    }
-
-    public void setCostPrice(double costPrice) {
-        this.costPrice = costPrice;
     }
 
     public String getDescription() {

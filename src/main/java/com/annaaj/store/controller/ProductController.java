@@ -1,5 +1,7 @@
 package com.annaaj.store.controller;
 
+import com.annaaj.store.dto.product.ProductResponseDtoCommunityLeader;
+import com.annaaj.store.dto.product.ProductResponseDtoUser;
 import com.annaaj.store.service.CategoryService;
 import com.annaaj.store.service.ProductService;
 import com.annaaj.store.common.ApiResponse;
@@ -24,8 +26,20 @@ public class ProductController {
 
     @GetMapping("/")
     public ResponseEntity<List<ProductDto>> getProducts() {
-        List<ProductDto> body = productService.listProducts();
+        List<ProductDto> body = productService.listProductsAdmin();
         return new ResponseEntity<List<ProductDto>>(body, HttpStatus.OK);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<ProductResponseDtoUser>> getProductsUser() {
+        List<ProductResponseDtoUser> body = productService.listProductsUser();
+        return new ResponseEntity<List<ProductResponseDtoUser>>(body, HttpStatus.OK);
+    }
+
+    @GetMapping("/community-leaders")
+    public ResponseEntity<List<ProductResponseDtoCommunityLeader>> getProductsCommunityLeader() {
+        List<ProductResponseDtoCommunityLeader> body = productService.listProductsCommunityLeader();
+        return new ResponseEntity<List<ProductResponseDtoCommunityLeader>>(body, HttpStatus.OK);
     }
 
     @PostMapping("/add")

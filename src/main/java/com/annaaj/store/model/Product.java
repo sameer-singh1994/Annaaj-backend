@@ -18,6 +18,7 @@ public class Product {
     private @NotNull String name;
     private @NotNull String imageURL;
     private @NotNull double price;
+    private @NotNull double costPrice;
     private @NotNull String description;
 
     @JsonIgnore
@@ -106,6 +107,14 @@ public class Product {
         this.category = category;
     }
 
+    public double getCostPrice() {
+        return costPrice;
+    }
+
+    public void setCostPrice(double costPrice) {
+        this.costPrice = costPrice;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
@@ -113,6 +122,7 @@ public class Product {
                 ", name='" + name + '\'' +
                 ", imageURL='" + imageURL + '\'' +
                 ", price=" + price +
+                ", costPrice=" + costPrice +
                 ", description='" + description + '\'' +
                 '}';
     }

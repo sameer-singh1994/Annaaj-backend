@@ -5,10 +5,12 @@ import java.util.List;
 public class CartDto {
     private List<CartItemDto> cartItems;
     private double totalCost;
+    private double totalIncentive;
 
-    public CartDto(List<CartItemDto> cartItemDtoList, double totalCost) {
+    public CartDto(List<CartItemDto> cartItemDtoList, double totalCost, double totalIncentive) {
         this.cartItems = cartItemDtoList;
         this.totalCost = totalCost;
+        this.totalIncentive = totalIncentive;
     }
 
     public List<CartItemDto> getcartItems() {
@@ -25,5 +27,13 @@ public class CartDto {
 
     public void setTotalCost(int totalCost) {
         this.totalCost = totalCost;
+    }
+
+    public double getTotalIncentive() {
+        return totalIncentive;
+    }
+
+    public void setTotalIncentive(double totalIncentive) {
+        this.totalIncentive = totalIncentive;
     }
 }

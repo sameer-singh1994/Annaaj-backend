@@ -20,16 +20,16 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
         		.apiInfo(getApiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.webtutsplus.ecommerce"))
+                .apis(RequestHandlerSelectors.basePackage("com.annaaj.store"))
                 .paths(PathSelectors.any())
                 .build();
     }
 	
 	private ApiInfo getApiInfo() {
-        Contact contact = new Contact("webtutsplus", "http://webtutsplus.com", "contact.webtutsplus@gmail.com");
+        Contact contact = new Contact("annaaj", "http://annaaj.com", "support@annaaj.com");
         return new ApiInfoBuilder()
-                .title("Ecommerce API")
-                .description("Documentation Ecommerce api")
+                .title("Annaaj API")
+                .description("Documentation annaaj api")
                 .version("1.0.0")
                 .license("Apache 2.0")
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0")

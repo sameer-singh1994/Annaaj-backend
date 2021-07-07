@@ -19,6 +19,8 @@ public class OrderItem {
     @Column(name = "price")
     private @NotNull double price;
 
+    @Column(name = "incentive")
+    private @NotNull double incentive;
 
     @Column(name = "created_date")
     private Date createdDate;
@@ -33,10 +35,12 @@ public class OrderItem {
 
     public OrderItem(){}
 
-    public OrderItem(Order order, @NotNull Product product, @NotNull int quantity, @NotNull double price) {
+    public OrderItem(Order order, @NotNull Product product, @NotNull int quantity,
+                     @NotNull double price, @NotNull double incentive) {
         this.product = product;
         this.quantity = quantity;
         this.price = price;
+        this.incentive = incentive;
         this.order= order;
         this.createdDate = new Date();
     }
@@ -64,6 +68,14 @@ public class OrderItem {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public double getIncentive() {
+        return incentive;
+    }
+
+    public void setIncentive(double incentive) {
+        this.incentive = incentive;
     }
 
     public Date getCreatedDate() {

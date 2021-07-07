@@ -9,6 +9,7 @@ public class PlaceOrderDto {
     private Integer id;
     private @NotNull User user;
     private @NotNull Double totalPrice;
+    private @NotNull Double totalIncentive;
 
     public PlaceOrderDto() {
     }
@@ -17,6 +18,7 @@ public class PlaceOrderDto {
         this.setId(order.getId());
         this.setUser(order.getUser());
         this.setTotalPrice(order.getTotalPrice());
+        this.setTotalIncentive(order.getIncentive());
     }
 
     public Integer getId() {
@@ -41,5 +43,13 @@ public class PlaceOrderDto {
 
     public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public Double getTotalIncentive() {
+        return totalIncentive;
+    }
+
+    public void setTotalIncentive(Double totalIncentive) {
+        this.totalIncentive = totalIncentive;
     }
 }

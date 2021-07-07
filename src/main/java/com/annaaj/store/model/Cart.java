@@ -13,9 +13,11 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
     @Column(name = "created_date")
     private Date createdDate;
+
+    @Column(name = "incentive")
+    private double incentive;
 
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
@@ -36,6 +38,7 @@ public class Cart {
         this.user = user;
         this.product = product;
         this.quantity = quantity;
+        this.incentive = 0.0;
         this.createdDate = new Date();
     }
 
@@ -77,5 +80,13 @@ public class Cart {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public double getIncentive() {
+        return incentive;
+    }
+
+    public void setIncentive(double incentive) {
+        this.incentive = incentive;
     }
 }

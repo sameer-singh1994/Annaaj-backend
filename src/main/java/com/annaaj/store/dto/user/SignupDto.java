@@ -7,13 +7,13 @@ public class SignupDto {
     private String password;
     private String phoneNumber;
     private String userRole;
-    private Long communityLeaderId;
+    private Integer communityLeaderId;
 
-    public Long getCommunityLeaderId() {
+    public Integer getCommunityLeaderId() {
         return communityLeaderId;
     }
 
-    public void setCommunityLeaderId(Long communityLeaderId) {
+    public void setCommunityLeaderId(Integer communityLeaderId) {
         this.communityLeaderId = communityLeaderId;
     }
 

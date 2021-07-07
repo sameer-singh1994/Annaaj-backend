@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Integer> {
 
     List<User> findAll();
 
@@ -21,5 +21,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public User findByVerificationCode(String code);
 
     @Query("SELECT u FROM User u where u.communityLeaderId = ?1")
-    public List<User> findAssociatedUsers(Long communityLeaderId);
+    public List<User> findAssociatedUsers(Integer communityLeaderId);
 }

@@ -12,6 +12,7 @@ import com.annaaj.store.dto.user.SignInDto;
 import com.annaaj.store.dto.user.SignInResponseDto;
 import com.annaaj.store.dto.user.SignupDto;
 import com.annaaj.store.model.User;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -44,11 +45,21 @@ public class UserController {
         return userService.signUp(signupDto, getSiteURL(request));
     }
 
-    @PostMapping("/getAssociatedUsers")
-    public List<User> getAllAssociatedUsers(@RequestParam("token") String token,
-                                            @Param("communityLeaderId") String communityLeaderId) throws CustomException {
+    @GetMapping("/getCommunityLeader")
+    public User getCommunityLeader(@RequestParam("token") String token) throws CustomException {
         authenticationService.authenticate(token);
-        return userRepository.findAssociatedUsers(Long.getLong(communityLeaderId));
+        User user = authenticationService.getUser(token);
+        Optional<User> communityLeader = userRepository.findById(user.getCommunityLeaderId());
+        if (communityLeader.isPresent()) {
+            return communityLeader.get();
+        }
+        throw new CustomException("communityLeaderId not present for user");
+    }
+
+    @GetMapping("/getAssociatedUsers")
+    public List<User> getAllAssociatedUsers(@RequestParam("token") String token) throws CustomException {
+        authenticationService.authenticate(token);
+        return userRepository.findAssociatedUsers(authenticationService.getUser(token).getId());
     }
 
     @GetMapping("/verify")

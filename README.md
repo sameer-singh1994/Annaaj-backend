@@ -25,7 +25,7 @@ https://infallible-swartz-b50174.netlify.app/
 1. Create a database called `ecommerce` with ``CHARACTER SET utf8mb4`` and `COLLATE utf8mb4_0900_ai_ci`. MariaDB does not support `COLLATE utf8mb4_0900_ai_ci`. So, if you are using MariaDB, open `database-dump.sql` file and replace `COLLATE utf8mb4_0900_ai_ci` with `COLLATE utf8mb4_general_ci`  
 1. Import `database-dump.sql` in it.
 1. To run the application, run the command ``sh run.sh`` i.e. execute the ``run.sh`` file. 
-1. After starting application, go to http://localhost:8080/api/swagger-ui.html/
+1. After starting application, go to http://localhost:8443/api/swagger-ui.html#/
    
 ## Category/Update/{id}
 * The input for updating the category via API is

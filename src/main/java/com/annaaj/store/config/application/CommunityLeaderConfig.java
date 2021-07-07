@@ -1,12 +1,12 @@
 package com.annaaj.store.config.application;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties("communityleader")
-@Component
+@Configuration
 public class CommunityLeaderConfig {
 
+  @Value("${communityleader.incentive_percentage}")
   private double incentivePercentage;
 
   public double getIncentivePercentage() {

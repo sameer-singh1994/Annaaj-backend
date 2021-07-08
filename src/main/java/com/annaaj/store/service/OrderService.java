@@ -1,6 +1,7 @@
 package com.annaaj.store.service;
 
 import com.annaaj.store.enums.OrderStatus;
+import com.annaaj.store.exceptions.OrderCanNotBeCompletedException;
 import com.annaaj.store.exceptions.OrderNotFoundException;
 import com.annaaj.store.model.Order;
 import com.annaaj.store.model.OrderItem;
@@ -71,6 +72,14 @@ public class OrderService {
         throw new OrderNotFoundException("Order not found");
     }
 
+    public void cancelOrder(int orderId) {
+        Order order = getOrder(orderId);
+        if (order.getOrderStatus().equals(OrderStatus.COMPLETED) || order.getOrderStatus().equals(OrderStatus.DELIVERED_TO_COMMUNITY_LEADER)) {
+            OrderStatus orderStatus = order.getOrderStatus();
+            throw new OrderCanNotBeCompletedException("Order can not be cancelled because it has been " + orderStatus.getText());
+        }
+        orderRepository.delete(order);
+    }
 
     public void placeOrder(User user, String sessionId) {
         CartDto cartDto = cartService.listCartItems(user);

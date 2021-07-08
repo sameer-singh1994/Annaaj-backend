@@ -8,4 +8,5 @@ public class MessageStrings {
     public static final String USER_CREATED = "user created successfully";
     public static final String ID_NOT_PRESENT = "primary key is required for updating";
     public static final String WRONG_PASSWORD = "please check the pass";
+    public static final String USER_NOT_ASSOCIATED = "user not associated with Community Leader";
 }

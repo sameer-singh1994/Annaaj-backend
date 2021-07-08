@@ -1,8 +1,10 @@
 package com.annaaj.store.controller;
 
+import com.annaaj.store.enums.Role;
 import com.annaaj.store.model.User;
 import com.annaaj.store.service.AuthenticationService;
 import com.annaaj.store.service.UserProfileService;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -36,7 +38,7 @@ public class UserProfileController {
 
 	@PostMapping("/add")
 	public ResponseEntity<ApiResponse> addProfile(@RequestBody @Valid UserProfile profile, @RequestParam("token") String token) {
-		authenticationService.authenticate(token);
+		authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
 		User user = authenticationService.getUser(token);
 		if (!user.getId().equals(profile.getId()))
 			return new ResponseEntity<>(new ApiResponse(false, "User was not found."), HttpStatus.NOT_FOUND);

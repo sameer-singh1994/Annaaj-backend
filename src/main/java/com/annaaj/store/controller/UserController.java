@@ -3,6 +3,7 @@ package com.annaaj.store.controller;
 
 import com.annaaj.store.common.ApiResponse;
 import com.annaaj.store.dto.ResponseDto;
+import com.annaaj.store.enums.Role;
 import com.annaaj.store.exceptions.AuthenticationFailException;
 import com.annaaj.store.exceptions.CustomException;
 import com.annaaj.store.model.UserProfile;
@@ -13,6 +14,8 @@ import com.annaaj.store.dto.user.SignInDto;
 import com.annaaj.store.dto.user.SignInResponseDto;
 import com.annaaj.store.dto.user.SignupDto;
 import com.annaaj.store.model.User;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +42,7 @@ public class UserController {
 
     @GetMapping("/all")
     public List<User> findAllUser(@RequestParam("token") String token) throws AuthenticationFailException {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Collections.singletonList(Role.admin));
         return userRepository.findAll();
     }
 
@@ -50,13 +53,13 @@ public class UserController {
 
     @PostMapping("/getUser")
     public User getUser(@RequestParam("token") String token) {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
         return authenticationService.getUser(token);
     }
 
     @GetMapping("/getCommunityLeader")
     public User getCommunityLeader(@RequestParam("token") String token) throws CustomException {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Collections.singletonList(Role.user));
         User user = authenticationService.getUser(token);
         Optional<User> communityLeader = userRepository.findById(user.getCommunityLeaderId());
         if (communityLeader.isPresent()) {
@@ -67,7 +70,7 @@ public class UserController {
 
     @GetMapping("/getAssociatedUsers")
     public List<User> getAllAssociatedUsers(@RequestParam("token") String token) throws CustomException {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
         return userRepository.findAssociatedUsers(authenticationService.getUser(token).getId());
     }
 
@@ -88,7 +91,7 @@ public class UserController {
 
     @PostMapping("/signOut")
     public ResponseEntity<ApiResponse> signOut(@RequestParam("token") String token) throws CustomException {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
         userService.signOut(token);
         return new ResponseEntity<>(
             new ApiResponse(true, "User has been successfully logged out"), HttpStatus.OK);

@@ -1,11 +1,13 @@
 package com.annaaj.store.controller;
 
 import com.annaaj.store.enums.OrderStatus;
+import com.annaaj.store.enums.Role;
 import com.annaaj.store.exceptions.AuthenticationFailException;
 import com.annaaj.store.exceptions.OrderNotFoundException;
 import com.annaaj.store.exceptions.ProductNotExistException;
 import com.annaaj.store.model.Order;
 import com.annaaj.store.model.User;
+import com.annaaj.store.repository.UserRepository;
 import com.annaaj.store.service.AuthenticationService;
 import com.annaaj.store.service.OrderService;
 import com.annaaj.store.service.UserService;
@@ -33,10 +35,13 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> placeOrder(@RequestParam("token") String token, @RequestParam("sessionId") String sessionId)
         throws ProductNotExistException, AuthenticationFailException {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Collections.singletonList(Role.user));
         User user = authenticationService.getUser(token);
         orderService.placeOrder(user, sessionId);
         return new ResponseEntity<>(new ApiResponse(true, "Order has been placed"), HttpStatus.CREATED);
@@ -44,7 +49,7 @@ public class OrderController {
 
     @GetMapping("/")
     public ResponseEntity<List<Order>> getAllOrders(@RequestParam("token") String token) throws AuthenticationFailException {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Collections.singletonList(Role.user));
         User user = authenticationService.getUser(token);
         List<Order> orderDtoList = orderService.listOrders(user);
         return new ResponseEntity<>(orderDtoList, HttpStatus.OK);
@@ -60,7 +65,7 @@ public class OrderController {
     @PostMapping("/delivered-community-leader/{id}")
     public ResponseEntity<ApiResponse> orderDeliveredToCommunityLeader(@PathVariable("id") Integer id,
                                                                        @RequestParam("token") String token) throws AuthenticationFailException {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
         orderService.updateOrderStatus(id, OrderStatus.DELIVERED_TO_COMMUNITY_LEADER);
         return new ResponseEntity<>(
             new ApiResponse(true, "Order has been delivered to community leader"), HttpStatus.OK);
@@ -69,7 +74,7 @@ public class OrderController {
     @PostMapping("/completed/{id}")
     public ResponseEntity<ApiResponse> orderCompleted(@PathVariable("id") Integer id,
                                                                        @RequestParam("token") String token) throws AuthenticationFailException {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
         Order order = orderService.getOrder(id);
         if (order.getOrderStatus().equals(OrderStatus.COMPLETED)) {
             return new ResponseEntity<>(
@@ -84,10 +89,13 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOrder(@PathVariable("id") Integer id, @RequestParam("token") String token) throws AuthenticationFailException {
-        authenticationService.authenticate(token);
+        authenticationService.authenticate(token, Collections.singletonList(Role.user));
         User user = authenticationService.getUser(token);
         try {
             Order order = orderService.getOrder(id);
+            if (!user.getId().equals(order.getUser().getId())) {
+            return new ResponseEntity<>("The order does not belong to the user", HttpStatus.FORBIDDEN);
+            }
             return new ResponseEntity<>(order,HttpStatus.OK);
         }
         catch (OrderNotFoundException e) {
@@ -96,4 +104,54 @@ public class OrderController {
 
     }
 
+    @DeleteMapping("/cancel/{id}")
+    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable("id") Integer id, @RequestParam("token") String token) {
+        authenticationService.authenticate(token, Collections.singletonList(Role.user));
+        User user = authenticationService.getUser(token);
+        Order order = orderService.getOrder(id);
+        if (!order.getUser().getId().equals(user.getId())) {
+            return new ResponseEntity<>(new ApiResponse(false, "Order does not belong to user"), HttpStatus.FORBIDDEN);
+        }
+        orderService.cancelOrder(id);
+        return new ResponseEntity<>(new ApiResponse(true, "Order has been cancelled"), HttpStatus.OK);
+    }
+
+    @PostMapping("/add/user/{userId}")
+    public ResponseEntity<ApiResponse> placeOrder(@RequestParam("token") String token,
+                                                  @RequestParam("sessionId") String sessionId, @PathVariable("userId") Integer userId)
+        throws ProductNotExistException, AuthenticationFailException {
+        authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
+        authenticationService.authenticateCommunityLeader(token, userId);
+        User user = userRepository.findById(userId).get();
+        orderService.placeOrder(user, sessionId);
+        return new ResponseEntity<>(new ApiResponse(true, "Order has been placed"), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Order>> getAllOrders(@RequestParam("token") String token, @PathVariable("userId") Integer userId) throws AuthenticationFailException {
+        authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
+        authenticationService.authenticateCommunityLeader(token, userId);
+        User user = userRepository.findById(userId).get();
+        List<Order> orderDtoList = orderService.listOrders(user);
+        return new ResponseEntity<>(orderDtoList, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/user/{userId}")
+    public ResponseEntity<Object> getOrder(@PathVariable("id") Integer id,
+                                           @RequestParam("token") String token, @PathVariable("userId") Integer userId) throws AuthenticationFailException {
+        authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
+        authenticationService.authenticateCommunityLeader(token, userId);
+        User user = userRepository.findById(userId).get();
+        try {
+            Order order = orderService.getOrder(id);
+            if (!user.getId().equals(order.getUser().getId())) {
+                return new ResponseEntity<>("The order does not belong to the user", HttpStatus.FORBIDDEN);
+            }
+            return new ResponseEntity<>(order,HttpStatus.OK);
+        }
+        catch (OrderNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
+        }
+
+    }
 }

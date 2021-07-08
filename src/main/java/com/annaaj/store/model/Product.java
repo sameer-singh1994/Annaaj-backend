@@ -44,14 +44,16 @@ public class Product {
         this.imageURL = productDto.getImageURL();
         this.description = productDto.getDescription();
         this.price = productDto.getPrice();
+        this.costPrice = productDto.getCostPrice();
         this.category = category;
     }
 
-    public Product(String name, String imageURL, double price, String description, Category category) {
+    public Product(String name, String imageURL, double price, double costPrice, String description, Category category) {
         super();
         this.name = name;
         this.imageURL = imageURL;
         this.price = price;
+        this.costPrice = costPrice;
         this.description = description;
         this.category = category;
     }

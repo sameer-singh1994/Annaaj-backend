@@ -80,8 +80,8 @@ public class CartService {
     }
 
     public Cart setCommunityLeaderIncentive(Cart cart, Product product) {
-        double productPrice = product.getPrice();
-        double incentive = productPrice * cart.getQuantity() * ( communityLeaderConfig.getIncentivePercentage() / 100.0 );
+        double productProfit = product.getPrice() - product.getCostPrice();
+        double incentive = productProfit * cart.getQuantity() * ( communityLeaderConfig.getIncentivePercentage() / 100.0 );
         cart.setIncentive(incentive);
         return cart;
     }

@@ -2,7 +2,9 @@ package com.annaaj.store.service;
 
 import com.annaaj.store.exceptions.StorageException;
 import com.annaaj.store.config.StorageProperties;
+import javax.annotation.PostConstruct;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -22,10 +24,16 @@ import java.util.stream.Stream;
 @Service
 public class FIleStoreService {
 
-    private StorageProperties properties = new StorageProperties();
-    Path rootLocation = Paths.get(properties.getLocation());
+    @Autowired
+    StorageProperties storageProperties;
+
+    Path rootLocation;
 
 
+    @PostConstruct
+    private void init(){
+        rootLocation = Paths.get(storageProperties.getLocation());
+    }
 
     public String store(MultipartFile file) {
         try {

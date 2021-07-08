@@ -48,6 +48,12 @@ public class UserController {
         return userService.signUp(signupDto, getSiteURL(request));
     }
 
+    @PostMapping("/getUser")
+    public User getUser(@RequestParam("token") String token) {
+        authenticationService.authenticate(token);
+        return authenticationService.getUser(token);
+    }
+
     @GetMapping("/getCommunityLeader")
     public User getCommunityLeader(@RequestParam("token") String token) throws CustomException {
         authenticationService.authenticate(token);

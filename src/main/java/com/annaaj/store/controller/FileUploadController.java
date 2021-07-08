@@ -2,6 +2,9 @@ package com.annaaj.store.controller;
 
 import com.annaaj.store.service.FIleStoreService;
 import com.annaaj.store.model.FileInfo;
+import java.io.IOException;
+import java.io.InputStream;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -44,10 +47,12 @@ public class FileUploadController {
     }
 
     @GetMapping("/files/{filename:.+}")
-    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
+    public ResponseEntity<byte[]> getFile(@PathVariable String filename) throws IOException {
         Resource file = fileStoreService.load(filename);
+        InputStream in = file.getInputStream();
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(
+                IOUtils.toByteArray(in));
     }
 
 }

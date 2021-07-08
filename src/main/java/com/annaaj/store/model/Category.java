@@ -1,5 +1,6 @@
 package com.annaaj.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
@@ -21,6 +22,7 @@ public class Category {
 
 	// add imageURL here
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "category", fetch = FetchType.LAZY,
 			cascade = CascadeType.ALL)
 	Set<Product> products;

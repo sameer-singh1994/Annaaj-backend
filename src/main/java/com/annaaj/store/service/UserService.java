@@ -75,7 +75,13 @@ public class UserService {
             if (Objects.isNull(signupDto.getCommunityLeaderId())) {
                 throw new CustomException("communityLeaderId not present for user");
             }
-            user.setCommunityLeaderId(signupDto.getCommunityLeaderId());
+            Optional <User> communityLeader = userRepository.findById(signupDto.getCommunityLeaderId());
+            if (communityLeader.isPresent()) {
+                user.setCommunityLeaderId(signupDto.getCommunityLeaderId());
+            }
+            else {
+                throw new CustomException("communityLeaderId not present for user");
+            }
         }
         else if (role.equals(Role.communityLeader)) {
             user.setTotalEarnings(0L);
@@ -124,7 +130,7 @@ public class UserService {
         helper.setSubject(subject);
 
         content = content.replace("[[name]]", user.getFullName());
-        String verifyURL = siteURL + "/verify?code=" + user.getVerificationCode();
+        String verifyURL = siteURL + "/user/verify?code=" + user.getVerificationCode();
 
         content = content.replace("[[URL]]", verifyURL);
 

@@ -7,6 +7,8 @@ import com.annaaj.store.service.ProductService;
 import com.annaaj.store.common.ApiResponse;
 import com.annaaj.store.dto.product.ProductDto;
 import com.annaaj.store.model.Category;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,26 +26,31 @@ public class ProductController {
     @Autowired
     CategoryService categoryService;
 
+    @ApiOperation(value = "get all products, for ADMIN")
     @GetMapping("/")
     public ResponseEntity<List<ProductDto>> getProducts() {
         List<ProductDto> body = productService.listProductsAdmin();
         return new ResponseEntity<List<ProductDto>>(body, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "get all products, for USER (will not contain incentive info)")
     @GetMapping("/users")
     public ResponseEntity<List<ProductResponseDtoUser>> getProductsUser() {
         List<ProductResponseDtoUser> body = productService.listProductsUser();
         return new ResponseEntity<List<ProductResponseDtoUser>>(body, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "get all products, for COMMUNITY_LEADER (will contain incentive info)")
     @GetMapping("/community-leaders")
     public ResponseEntity<List<ProductResponseDtoCommunityLeader>> getProductsCommunityLeader() {
         List<ProductResponseDtoCommunityLeader> body = productService.listProductsCommunityLeader();
         return new ResponseEntity<List<ProductResponseDtoCommunityLeader>>(body, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "add product, ROLE = ADMIN")
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addProduct(@RequestBody ProductDto productDto) {
+    public ResponseEntity<ApiResponse> addProduct(
+        @ApiParam("id can be left as it is") @RequestBody ProductDto productDto) {
         Optional<Category> optionalCategory = categoryService.readCategory(productDto.getCategoryId());
         if (!optionalCategory.isPresent()) {
             return new ResponseEntity<ApiResponse>(new ApiResponse(false, "category is invalid"), HttpStatus.CONFLICT);
@@ -53,8 +60,11 @@ public class ProductController {
         return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Product has been added"), HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "update product, ROLE = ADMIN")
     @PostMapping("/update/{productID}")
-    public ResponseEntity<ApiResponse> updateProduct(@PathVariable("productID") Integer productID, @RequestBody @Valid ProductDto productDto) {
+    public ResponseEntity<ApiResponse> updateProduct(
+        @ApiParam(value = "id of the product to be updated") @PathVariable("productID") Integer productID,
+        @ApiParam(value = "updated info of product") @RequestBody @Valid ProductDto productDto) {
         Optional<Category> optionalCategory = categoryService.readCategory(productDto.getCategoryId());
         if (!optionalCategory.isPresent()) {
             return new ResponseEntity<ApiResponse>(new ApiResponse(false, "category is invalid"), HttpStatus.CONFLICT);

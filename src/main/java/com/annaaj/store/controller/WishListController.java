@@ -11,6 +11,8 @@ import com.annaaj.store.model.User;
 import com.annaaj.store.model.WishList;
 import com.annaaj.store.service.WishListService;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,8 +33,9 @@ public class WishListController {
         @Autowired
         private AuthenticationService authenticationService;
 
+        @ApiOperation(value = "get wishlist(only for user), ROLE = USER")
         @GetMapping("/{token}")
-        public ResponseEntity<List<ProductDto>> getWishList(@PathVariable("token") String token) {
+        public ResponseEntity<List<ProductDto>> getWishList(@ApiParam @PathVariable("token") String token) {
                 authenticationService.authenticate(token, Collections.singletonList(Role.user));
                 int user_id = authenticationService.getUser(token).getId();
                 List<WishList> body = wishListService.readWishList(user_id);
@@ -44,8 +47,11 @@ public class WishListController {
                 return new ResponseEntity<>(products, HttpStatus.OK);
         }
 
+        @ApiOperation(value = "add item in wishlist(only for user), ROLE = USER")
         @PostMapping("/add")
-        public ResponseEntity<ApiResponse> addWishList(@RequestBody Product product, @RequestParam("token") String token) {
+        public ResponseEntity<ApiResponse> addWishList(
+            @ApiParam(value = "product object which needs to be added to wishlist") @RequestBody Product product,
+            @ApiParam @RequestParam("token") String token) {
                 authenticationService.authenticate(token, Collections.singletonList(Role.user));
                 User user = authenticationService.getUser(token);
                 WishList wishList = new WishList(user, product);

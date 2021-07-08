@@ -16,6 +16,8 @@ import com.stripe.model.checkout.Session;
 import com.annaaj.store.common.ApiResponse;
 import com.annaaj.store.dto.checkout.CheckoutItemDto;
 import com.annaaj.store.dto.checkout.StripeResponse;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,8 +40,10 @@ public class OrderController {
     @Autowired
     private UserRepository userRepository;
 
+    @ApiOperation(value = "place order, ROLE = USER")
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> placeOrder(@RequestParam("token") String token, @RequestParam("sessionId") String sessionId)
+    public ResponseEntity<ApiResponse> placeOrder(@ApiParam @RequestParam("token") String token,
+                                                  @ApiParam(value = "can be left as it is for now") @RequestParam("sessionId") String sessionId)
         throws ProductNotExistException, AuthenticationFailException {
         authenticationService.authenticate(token, Collections.singletonList(Role.user));
         User user = authenticationService.getUser(token);
@@ -47,33 +51,38 @@ public class OrderController {
         return new ResponseEntity<>(new ApiResponse(true, "Order has been placed"), HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "get all orders, ROLE = USER")
     @GetMapping("/")
-    public ResponseEntity<List<Order>> getAllOrders(@RequestParam("token") String token) throws AuthenticationFailException {
+    public ResponseEntity<List<Order>> getAllOrders(@ApiParam @RequestParam("token") String token) throws AuthenticationFailException {
         authenticationService.authenticate(token, Collections.singletonList(Role.user));
         User user = authenticationService.getUser(token);
         List<Order> orderDtoList = orderService.listOrders(user);
         return new ResponseEntity<>(orderDtoList, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "create a checkout session(do not use for now), ROLE = USER, COMMUNITY_LEADER")
     @PostMapping("/create-checkout-session")
-    public ResponseEntity<StripeResponse> checkoutList(@RequestBody List<CheckoutItemDto> checkoutItemDtoList) throws StripeException {
+    public ResponseEntity<StripeResponse> checkoutList(
+        @ApiParam @RequestBody List<CheckoutItemDto> checkoutItemDtoList) throws StripeException {
         Session session = orderService.createSession(checkoutItemDtoList);
         StripeResponse stripeResponse = new StripeResponse(session.getId());
         return new ResponseEntity<>(stripeResponse, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "order delivered to community leader, ROLE = COMMUNITY_LEADER")
     @PostMapping("/delivered-community-leader/{id}")
-    public ResponseEntity<ApiResponse> orderDeliveredToCommunityLeader(@PathVariable("id") Integer id,
-                                                                       @RequestParam("token") String token) throws AuthenticationFailException {
+    public ResponseEntity<ApiResponse> orderDeliveredToCommunityLeader(@ApiParam(value = "order id") @PathVariable("id") Integer id,
+                                                                       @ApiParam @RequestParam("token") String token) throws AuthenticationFailException {
         authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
         orderService.updateOrderStatus(id, OrderStatus.DELIVERED_TO_COMMUNITY_LEADER);
         return new ResponseEntity<>(
             new ApiResponse(true, "Order has been delivered to community leader"), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "order completed(delivered to user), ROLE = USER, COMMUNITY_LEADER")
     @PostMapping("/completed/{id}")
-    public ResponseEntity<ApiResponse> orderCompleted(@PathVariable("id") Integer id,
-                                                                       @RequestParam("token") String token) throws AuthenticationFailException {
+    public ResponseEntity<ApiResponse> orderCompleted(@ApiParam(value = "order id") @PathVariable("id") Integer id,
+                                                                       @ApiParam @RequestParam("token") String token) throws AuthenticationFailException {
         authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
         Order order = orderService.getOrder(id);
         if (order.getOrderStatus().equals(OrderStatus.COMPLETED)) {
@@ -87,8 +96,10 @@ public class OrderController {
             new ApiResponse(true, "Order has been received by the user"), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "get order from order id, ROLE = USER")
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getOrder(@PathVariable("id") Integer id, @RequestParam("token") String token) throws AuthenticationFailException {
+    public ResponseEntity<Object> getOrder(@ApiParam(value = "order id") @PathVariable("id") Integer id,
+                                           @ApiParam @RequestParam("token") String token) throws AuthenticationFailException {
         authenticationService.authenticate(token, Collections.singletonList(Role.user));
         User user = authenticationService.getUser(token);
         try {
@@ -104,8 +115,10 @@ public class OrderController {
 
     }
 
+    @ApiOperation(value = "cancel order (only if the order is not yet delivered to community leader), ROLE = USER")
     @DeleteMapping("/cancel/{id}")
-    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable("id") Integer id, @RequestParam("token") String token) {
+    public ResponseEntity<ApiResponse> cancelOrder(@ApiParam(value = "order id") @PathVariable("id") Integer id,
+                                                   @ApiParam @RequestParam("token") String token) {
         authenticationService.authenticate(token, Collections.singletonList(Role.user));
         User user = authenticationService.getUser(token);
         Order order = orderService.getOrder(id);
@@ -116,9 +129,11 @@ public class OrderController {
         return new ResponseEntity<>(new ApiResponse(true, "Order has been cancelled"), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "place order for associated user, ROLE = COMMUNITY_LEADER")
     @PostMapping("/add/user/{userId}")
-    public ResponseEntity<ApiResponse> placeOrder(@RequestParam("token") String token,
-                                                  @RequestParam("sessionId") String sessionId, @PathVariable("userId") Integer userId)
+    public ResponseEntity<ApiResponse> placeOrder(@ApiParam @RequestParam("token") String token,
+                                                  @ApiParam(value = "can be left as it is for now") @RequestParam("sessionId") String sessionId,
+                                                  @ApiParam(value = "id of the user on whose behalf this op is being performed") @PathVariable("userId") Integer userId)
         throws ProductNotExistException, AuthenticationFailException {
         authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
         authenticationService.authenticateCommunityLeader(token, userId);
@@ -127,8 +142,10 @@ public class OrderController {
         return new ResponseEntity<>(new ApiResponse(true, "Order has been placed"), HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "get all orders of associated user, ROLE = COMMUNITY_LEADER")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Order>> getAllOrders(@RequestParam("token") String token, @PathVariable("userId") Integer userId) throws AuthenticationFailException {
+    public ResponseEntity<List<Order>> getAllOrders(@ApiParam @RequestParam("token") String token,
+                                                    @ApiParam(value = "id of the user on whose behalf this op is being performed") @PathVariable("userId") Integer userId) throws AuthenticationFailException {
         authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
         authenticationService.authenticateCommunityLeader(token, userId);
         User user = userRepository.findById(userId).get();
@@ -136,9 +153,11 @@ public class OrderController {
         return new ResponseEntity<>(orderDtoList, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "get order by order id of associated user, ROLE = COMMUNITY_LEADER")
     @GetMapping("/{id}/user/{userId}")
-    public ResponseEntity<Object> getOrder(@PathVariable("id") Integer id,
-                                           @RequestParam("token") String token, @PathVariable("userId") Integer userId) throws AuthenticationFailException {
+    public ResponseEntity<Object> getOrder(@ApiParam(value = "order id") @PathVariable("id") Integer id,
+                                           @ApiParam @RequestParam("token") String token,
+                                           @ApiParam(value = "id of the user on whose behalf this op is being performed") @PathVariable("userId") Integer userId) throws AuthenticationFailException {
         authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
         authenticationService.authenticateCommunityLeader(token, userId);
         User user = userRepository.findById(userId).get();

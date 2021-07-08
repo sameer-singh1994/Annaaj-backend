@@ -2,6 +2,8 @@ package com.annaaj.store.controller;
 
 import com.annaaj.store.service.FIleStoreService;
 import com.annaaj.store.model.FileInfo;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
@@ -26,12 +28,14 @@ public class FileUploadController {
     @Autowired
     FIleStoreService fileStoreService;
 
+    @ApiOperation(value = "upload file")
     @PostMapping("/")
     public String handleFileUpload(@RequestParam("file") MultipartFile file) {
         return fileStoreService.store(file);
     }
 
 
+    @ApiOperation(value = "get all files, ROLE = ADMIN")
     @GetMapping("/")
     public ResponseEntity<List<FileInfo>> getListFiles() {
         List<FileInfo> fileInfos = fileStoreService.loadAll().map(path -> {
@@ -46,8 +50,10 @@ public class FileUploadController {
         return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
     }
 
+    @ApiOperation(value = "get file")
     @GetMapping("/files/{filename:.+}")
-    public ResponseEntity<byte[]> getFile(@PathVariable String filename) throws IOException {
+    public ResponseEntity<byte[]> getFile(
+        @ApiParam(value = "name of the file, only the name with extension(can be extracted from the upload file response by getting the string after the last /)") @PathVariable String filename) throws IOException {
         Resource file = fileStoreService.load(filename);
         InputStream in = file.getInputStream();
         return ResponseEntity.ok()

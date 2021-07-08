@@ -4,6 +4,8 @@ import com.annaaj.store.enums.Role;
 import com.annaaj.store.model.User;
 import com.annaaj.store.service.AuthenticationService;
 import com.annaaj.store.service.UserProfileService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,14 +32,18 @@ public class UserProfileController {
 
 	@Autowired private AuthenticationService authenticationService;
 
+	@ApiOperation(value = "get profile of all users, ROLE = ADMIN")
 	@GetMapping("/")
 	public ResponseEntity<List<UserProfile>> getUsers() {
 		List<UserProfile> dtos = userProfileService.listProfiles();
-		return new ResponseEntity<List<UserProfile>>(dtos, HttpStatus.OK);
+		return new ResponseEntity<>(dtos, HttpStatus.OK);
 	}
 
+	@ApiOperation(value = "get user profile(add billing address which will be copied to the user object as well), ROLE = USER, COMMUNITY_LEADER")
 	@PostMapping("/add")
-	public ResponseEntity<ApiResponse> addProfile(@RequestBody @Valid UserProfile profile, @RequestParam("token") String token) {
+	public ResponseEntity<ApiResponse> addProfile(
+			@ApiParam(value = "user profile object(can leave id as it is)") @RequestBody @Valid UserProfile profile,
+			@ApiParam @RequestParam("token") String token) {
 		authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
 		User user = authenticationService.getUser(token);
 		if (!user.getId().equals(profile.getId()))

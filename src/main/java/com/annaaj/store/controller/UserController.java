@@ -14,6 +14,8 @@ import com.annaaj.store.dto.user.SignInDto;
 import com.annaaj.store.dto.user.SignInResponseDto;
 import com.annaaj.store.dto.user.SignupDto;
 import com.annaaj.store.model.User;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -40,25 +42,35 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @ApiOperation(value = "get all users, ROLE = ADMIN")
     @GetMapping("/all")
-    public List<User> findAllUser(@RequestParam("token") String token) throws AuthenticationFailException {
+    public List<User> findAllUser(
+        @ApiParam @RequestParam("token") String token) throws AuthenticationFailException {
         authenticationService.authenticate(token, Collections.singletonList(Role.admin));
         return userRepository.findAll();
     }
 
+    @ApiOperation(value = "signup")
     @PostMapping("/signup")
-    public ResponseDto Signup(@RequestBody SignupDto signupDto, HttpServletRequest request) throws CustomException {
+    public ResponseDto Signup(
+        @ApiParam(value = "for Community Leader the value of communityLeader field can be left as it is,"
+            + " but it is mandatory in case of a user, (verification email will be sent after this API call)") @RequestBody SignupDto signupDto,
+        HttpServletRequest request) throws CustomException {
         return userService.signUp(signupDto, getSiteURL(request));
     }
 
+    @ApiOperation(value = "get user from token, ROLE = ADMIN, USER, COMMUNITY_LEADER")
     @PostMapping("/getUser")
-    public User getUser(@RequestParam("token") String token) {
+    public User getUser(
+        @ApiParam @RequestParam("token") String token) {
         authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
         return authenticationService.getUser(token);
     }
 
+    @ApiOperation(value = "get community leader connected to you, ROLE = USER")
     @GetMapping("/getCommunityLeader")
-    public User getCommunityLeader(@RequestParam("token") String token) throws CustomException {
+    public User getCommunityLeader(
+        @ApiParam @RequestParam("token") String token) throws CustomException {
         authenticationService.authenticate(token, Collections.singletonList(Role.user));
         User user = authenticationService.getUser(token);
         Optional<User> communityLeader = userRepository.findById(user.getCommunityLeaderId());
@@ -68,12 +80,15 @@ public class UserController {
         throw new CustomException("communityLeaderId not present for user");
     }
 
+    @ApiOperation(value = "get all users connected to you, ROLE = COMMUNITY_LEADER")
     @GetMapping("/getAssociatedUsers")
-    public List<User> getAllAssociatedUsers(@RequestParam("token") String token) throws CustomException {
+    public List<User> getAllAssociatedUsers(
+        @ApiParam @RequestParam("token") String token) throws CustomException {
         authenticationService.authenticate(token, Collections.singletonList(Role.communityLeader));
         return userRepository.findAssociatedUsers(authenticationService.getUser(token).getId());
     }
 
+    @ApiOperation(value = "for email verification(not to be used from here)")
     @GetMapping("/verify")
     public String verifyUser(@Param("code") String code) {
         if (userService.verify(code)) {
@@ -83,14 +98,18 @@ public class UserController {
         }
     }
 
+    @ApiOperation(value = "signIn, ROLE = COMMUNITY_LEADER, USER, ADMIN")
     //TODO token should be updated
     @PostMapping("/signIn")
-    public SignInResponseDto signIn(@RequestBody SignInDto signInDto) throws CustomException {
+    public SignInResponseDto signIn(
+        @ApiParam(value = "email and password") @RequestBody SignInDto signInDto) throws CustomException {
         return userService.signIn(signInDto);
     }
 
+    @ApiOperation(value = "signOut (signIn token will be rotated), ROLE = COMMUNITY_LEADER, USER, ADMIN")
     @PostMapping("/signOut")
-    public ResponseEntity<ApiResponse> signOut(@RequestParam("token") String token) throws CustomException {
+    public ResponseEntity<ApiResponse> signOut(
+        @ApiParam @RequestParam("token") String token) throws CustomException {
         authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
         userService.signOut(token);
         return new ResponseEntity<>(

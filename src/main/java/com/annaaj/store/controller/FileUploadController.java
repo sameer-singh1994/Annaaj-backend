@@ -1,11 +1,15 @@
 package com.annaaj.store.controller;
 
+import com.annaaj.store.enums.Role;
+import com.annaaj.store.service.AuthenticationService;
 import com.annaaj.store.service.FIleStoreService;
 import com.annaaj.store.model.FileInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -28,16 +32,22 @@ public class FileUploadController {
     @Autowired
     FIleStoreService fileStoreService;
 
-    @ApiOperation(value = "upload file")
+    @Autowired
+    AuthenticationService authenticationService;
+
+    @ApiOperation(value = "upload file, ROLE = ADMIN, USER, COMMUNITY_LEADER")
     @PostMapping("/")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public String handleFileUpload(@RequestParam("file") MultipartFile file,
+                                   @ApiParam @RequestParam("token") String token) {
+        authenticationService.authenticate(token, Arrays.asList(Role.admin, Role.user, Role.communityLeader));
         return fileStoreService.store(file);
     }
 
 
     @ApiOperation(value = "get all files, ROLE = ADMIN")
     @GetMapping("/")
-    public ResponseEntity<List<FileInfo>> getListFiles() {
+    public ResponseEntity<List<FileInfo>> getListFiles(@ApiParam @RequestParam("token") String token) {
+        authenticationService.authenticate(token, Collections.singletonList(Role.admin));
         List<FileInfo> fileInfos = fileStoreService.loadAll().map(path -> {
             String filename = path.getFileName().toString();
             String url = MvcUriComponentsBuilder

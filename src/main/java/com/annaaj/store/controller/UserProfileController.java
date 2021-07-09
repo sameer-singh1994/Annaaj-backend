@@ -7,6 +7,7 @@ import com.annaaj.store.service.UserProfileService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -34,7 +35,8 @@ public class UserProfileController {
 
 	@ApiOperation(value = "get profile of all users, ROLE = ADMIN")
 	@GetMapping("/")
-	public ResponseEntity<List<UserProfile>> getUsers() {
+	public ResponseEntity<List<UserProfile>> getUsers(@ApiParam @RequestParam("token") String token) {
+		authenticationService.authenticate(token, Collections.singletonList(Role.admin));
 		List<UserProfile> dtos = userProfileService.listProfiles();
 		return new ResponseEntity<>(dtos, HttpStatus.OK);
 	}

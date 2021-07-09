@@ -63,7 +63,7 @@ public class UserController {
     @PostMapping("/getUser")
     public User getUser(
         @ApiParam @RequestParam("token") String token) {
-        authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
+        authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader, Role.admin));
         return authenticationService.getUser(token);
     }
 
@@ -98,7 +98,7 @@ public class UserController {
         }
     }
 
-    @ApiOperation(value = "signIn, ROLE = COMMUNITY_LEADER, USER, ADMIN")
+    @ApiOperation(value = "signIn")
     //TODO token should be updated
     @PostMapping("/signIn")
     public SignInResponseDto signIn(
@@ -110,7 +110,7 @@ public class UserController {
     @PostMapping("/signOut")
     public ResponseEntity<ApiResponse> signOut(
         @ApiParam @RequestParam("token") String token) throws CustomException {
-        authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader));
+        authenticationService.authenticate(token, Arrays.asList(Role.user, Role.communityLeader, Role.admin));
         userService.signOut(token);
         return new ResponseEntity<>(
             new ApiResponse(true, "User has been successfully logged out"), HttpStatus.OK);

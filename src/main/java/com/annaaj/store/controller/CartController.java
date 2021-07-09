@@ -38,7 +38,7 @@ public class CartController {
     @Autowired
     private UserRepository userRepository;
 
-    @ApiOperation(value = "add item to cart, ROLE = user")
+    @ApiOperation(value = "add item to cart, ROLE = USER")
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addToCart(@ApiParam(value = "dto for add to cart,"
         + " value of id field can be left as it is") @RequestBody AddToCartDto addToCartDto,
@@ -52,7 +52,7 @@ public class CartController {
 
     }
 
-    @ApiOperation(value = "get cart items, ROLE = user")
+    @ApiOperation(value = "get cart items, ROLE = USER")
     @GetMapping("/")
     public ResponseEntity<CartDto> getCartItems(@ApiParam @RequestParam("token") String token) throws AuthenticationFailException {
         authenticationService.authenticate(token, Collections.singletonList(Role.user));

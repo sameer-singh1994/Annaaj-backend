@@ -1,6 +1,7 @@
 package com.annaaj.store.service;
 
 
+import com.annaaj.store.config.AdminConfig;
 import com.annaaj.store.dto.ResponseDto;
 import com.annaaj.store.exceptions.AuthenticationFailException;
 import com.annaaj.store.exceptions.CustomException;
@@ -46,6 +47,9 @@ public class UserService {
     AuthenticationService authenticationService;
 
     @Autowired
+    private AdminConfig adminConfig;
+
+    @Autowired
     private JavaMailSender mailSender;
 
     Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -56,6 +60,10 @@ public class UserService {
         if (Helper.notNull(userRepository.findByEmail(signupDto.getEmail()))) {
             // If the email address has been registered then throw an exception.
             throw new CustomException("User already exists");
+        }
+
+        if (Role.fromString(signupDto.getUserRole()).equals(Role.admin)) {
+            checkAdmin(signupDto);
         }
         // first encrypt the password
         String encryptedPassword = signupDto.getPassword();
@@ -92,6 +100,11 @@ public class UserService {
         user.setVerificationCode(randomCode);
         user.setEnabled(false);
 
+        if (role.equals(Role.admin)) {
+            user.setVerificationCode(null);
+            user.setEnabled(true);
+        }
+
         User createdUser;
         try {
             // save the User
@@ -100,8 +113,10 @@ public class UserService {
             final AuthenticationToken authenticationToken = new AuthenticationToken(createdUser);
             // save token in database
             authenticationService.saveConfirmationToken(authenticationToken);
-            //send verification email
-            sendVerificationEmail(createdUser, siteUrl);
+            if (!role.equals(Role.admin)) {
+                //send verification email
+                sendVerificationEmail(createdUser, siteUrl);
+            }
             // success in creating
             return new ResponseDto(ResponseStatus.success.toString(), USER_CREATED);
         } catch (Exception e) {
@@ -243,6 +258,13 @@ public class UserService {
     public void updateCommunityLeaderIncentive(User user, Order order) {
         user.setTotalEarnings(user.getTotalEarnings() + order.getIncentive());
         userRepository.save(user);
+    }
+
+    private void checkAdmin(SignupDto signupDto) {
+        if (!signupDto.getEmail().equals(adminConfig.getUserEmail()) ||
+            !signupDto.getPassword().equals(adminConfig.getPassword())) {
+            throw new CustomException("Invalid email or password for admin");
+        }
     }
 
     boolean canCrudUser(Role role) {
